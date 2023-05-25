@@ -203,6 +203,8 @@ int main() {
             switch (chon2)
             {
             case 0:
+                printf("\n\t\tThoat ra Menu Chinh.\n");
+                prinNgatDong();
                 break;
             case 1:
                 printf("\n\t\t\tDuyet cay theo thu tu NLR: ");
