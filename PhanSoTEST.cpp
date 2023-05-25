@@ -1,7 +1,7 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
-
+//yeu em nhiu chut
 // Định nghĩa cấu trúc phân số
 typedef struct {
     int tuSo;   // Tử số
