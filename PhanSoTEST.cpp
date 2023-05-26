@@ -37,7 +37,31 @@ Node* insertNode(Node* root, Fraction value) {
     }
     return root;
 }
+// Ham chen mot nut con vao nut cha
+Node* insertChild(Node* root, Fraction parent, Fraction child, char position) {
+    if (root == NULL) {
+        printf("\n\t\tKhong tim thay nut cha.\n");
+        return NULL;
+    }
+    if (root->data.tuSo == parent.tuSo && root->data.mauSo == parent.mauSo) {
+        Node* childNode = createNode(child);
+        if (position == 'L' || position == 'l') {
+            root->left = childNode;
+        }
+        else if (position == 'R' || position == 'r') {
+            root->right = childNode;
+        }
+        else {
+            printf("\n\t\tVi tri khong hop le.\n");
+        }
+    }
+    else {
+        insertChild(root->left, parent, child, position);
+        insertChild(root->right, parent, child, position);
 
+    }
+    return root;
+}
 // Hàm duyệt cây theo thứ tự NLR
 void traverseNLR(Node* root) {
     if (root != NULL) {
@@ -141,15 +165,55 @@ int timPhanSo(Node* root, Fraction x) {
     return timPhanSo(root->left, x) || timPhanSo(root->right, x);
 }
 
+Fraction addFractions(Fraction fraction1, Fraction fraction2) {
+    Fraction sum;
+    sum.tuSo = fraction1.tuSo * fraction2.mauSo + fraction2.tuSo * fraction1.mauSo;
+    sum.mauSo = fraction1.mauSo * fraction2.mauSo;
+    return rutGonPhanSo(sum);
+}
+
+Fraction findSmallestFraction(Node* root) {
+    if (root->left == NULL) {
+        return root->data;
+    }
+    return findSmallestFraction(root->left);
+}
+// Ham so nguyen to 
+int isPrime(int number) {
+    if (number < 2) {
+        return 0;
+    }
+    for (int i = 2; i * i <= number; i++) {
+        if (number % i == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+// danh sách tu so mau so deu la so nguyen to
+void listPrimeFractions(Node* root) {
+    if (root != NULL) {
+        if (isPrime(root->data.tuSo) && isPrime(root->data.mauSo)) {
+            printf("%d/%d ", root->data.tuSo, root->data.mauSo);
+        }
+        listPrimeFractions(root->left);
+        listPrimeFractions(root->right);
+    }
+}
+
 // Hàm hiển thị menu
 void displayMenu() {
     printf("\n\t\t======================MENU==========================");
-    printf("\n\t\t|       0. Thoat Chuong Trinh                      |");
-    printf("\n\t\t|       1. Them mot nut vao cay                    |");
-    printf("\n\t\t|       2. Duyet cay theo thu tu tu chon           |");
-    printf("\n\t\t|       3. Dem so luong phan so lon hon 1          |");
-    printf("\n\t\t|       4. Toi gian cac nut cua cay                |");
-    printf("\n\t\t|       5. Kiem tra gia tri mot phan so trong cay  |");
+    printf("\n\t\t|       0. Thoat Chuong Trinh                       |");
+    printf("\n\t\t|       1. Them mot nut vao cay                     |");
+    printf("\n\t\t|       2. Them mot nut con vao nut cha             |");
+    printf("\n\t\t|       3. Duyet cay theo thu tu tu chon            |");
+    printf("\n\t\t|       4. Dem so luong phan so lon hon 1           |");
+    printf("\n\t\t|       5. Toi gian cac nut cua cay                 |");
+    printf("\n\t\t|       6. Kiem tra gia tri mot phan so trong cay   |");
+    printf("\n\t\t|       7. Tinh tong cac phan so                    |");
+    printf("\n\t\t|       8. Tim phan so nho nhat                     |");
+    printf("\n\t\t|       9. Liet ke PS co tu, mau so la so nguyen to |");
     printf("\n\t\t====================================================");
     printf("\n\t\t        Lua chon cua ban: ");
 }
@@ -173,9 +237,10 @@ int main() {
     Node* root = NULL; // Khởi tạo cây rỗng
 
     int choice;
-    Fraction fraction;
+    Fraction fraction, parentFraction, childFraction;
+    char position;
     int result;
-
+    Fraction sum, smallestFraction;
 
     do {
         displayMenu();
@@ -195,6 +260,22 @@ int main() {
             prinNgatDong();
             break;
         case 2:
+            printf("\n\t\tNhap phan so cha:\n");
+            printf("\n\t\tNhap tu so: ");
+            scanf("%d", &parentFraction.tuSo);
+            printf("\n\t\tNhap mau so: ");
+            scanf("%d", &parentFraction.mauSo);
+            printf("\n\t\tNhap phan so con:\n");
+            printf("\n\t\tNhap tu so: ");
+            scanf("%d", &childFraction.tuSo);
+            printf("\n\t\tNhap mau so: ");
+            scanf("%d", &childFraction.mauSo);
+            printf("\n\t\tNhap vi tri (L/R): ");
+            scanf(" %c", &position);
+            root = insertChild(root, parentFraction, childFraction, position);
+            prinNgatDong();
+            break;
+        case 3:
             int chon2;
             MenuCon();
             printf("\n\t\tVui long chon chuc nang (0 -> 6): ");
@@ -244,20 +325,21 @@ int main() {
                 break;
             default:
                 printf("\nChuc nang khong phu hop. Vui long thu lai...\n");
+                prinNgatDong();
                 break;
             }
             break;
-        case 3:
+        case 4:
             result = demPhanSoLonHonMot(root);
             printf("\n\t\t\tSo luong phan so lon hon 1: %d\n", result);
             prinNgatDong();
             break;
-        case 4:
+        case 5:
             simplifyTree(root);
             printf("\n\t\t\tDa toi gian cac nut cua cay.\n");
             prinNgatDong();
             break;
-        case 5:
+        case 6:
             printf("\n\t\t\tNhap tu so: ");
             scanf("%d", &fraction.tuSo);
             printf("\n\t\t\tNhap mau so: ");
@@ -271,6 +353,35 @@ int main() {
             }
             prinNgatDong();
             break;
+        case 7:
+            sum.tuSo = 0;
+            sum.mauSo = 1;
+            sum = rutGonPhanSo(sum);
+            printf("\n\t\tNhap so luong phan so: ");
+            int n;
+            scanf("%d", &n);
+            for (int i = 0; i < n; i++) {
+                printf("\n\t\tNhap phan so thu %d:\n", i + 1);
+                printf("\n\t\tNhap tu so: ");
+                scanf("%d", &fraction.tuSo);
+                printf("\n\t\tNhap mau so: ");
+                scanf("%d", &fraction.mauSo);
+                sum = addFractions(sum, fraction);
+            }
+            printf("\n\t\tTong cac phan so: %d/%d\n", sum.tuSo, sum.mauSo);
+            prinNgatDong();
+            break;
+        case 8:
+            smallestFraction = findSmallestFraction(root);
+            printf("\n\t\tPhan so nho nhat trong cay: %d/%d\n", smallestFraction.tuSo, smallestFraction.mauSo);
+            prinNgatDong();
+            break;
+        case 9:
+            printf("\n\t\tCac phan so co tu so, mau so la so nguyen to: ");
+            listPrimeFractions(root);
+            printf("\n");
+            prinNgatDong();
+            break;
         default:
             printf("\n\t\t\tLua chon khong hop le. Vui long chon lai.\n");
             prinNgatDong();
@@ -280,4 +391,3 @@ int main() {
 
     return 0;
 }
-
